@@ -37,7 +37,8 @@
 
 ### "Market Analyzer" Real Coin Forecasting Component (?)
 ###### Feedback/ Let me Know : Does this make sense how we want to use it ?
-- This component, unlike UT Coin, is not necessarily trying to do anything different than exisiting stablecoins but rather attempt an accurate (simplified) model of current coins ... either by using time series prediction only or some simple utility based models
+- This component, unlike UT Coin, is not necessarily trying to do anything different than exisiting stablecoins but rather attempt an accurate (simplified) model of current coins ... either by using time series prediction only or some simple utility based models and simplifying assumptions
+- At the very least the project could include a few analyses
 ### Why:
    - Stress test for market predictions. This would be more of a pure statistical analysis approach
    - So given a "what-if" (fake) set of starting inputs such as:
@@ -53,16 +54,16 @@
  - As much as possible want to try to reuse a couple basic models to have some coverage
  - Make a lot of simple assumptions
  - If the USDC research goes pretty deep with MITRE, focus more heavily on this
- -   DAI:
- -     Steal DAI model from paper you guys found -- we vary those parameters (stability fee and collateralization ratio)
- -     Closest to achievable
- -   USDC:
- -     Need to work more with MITRE on this. Model may be completely different ( Sanith hinted size of cash flows)
- -     Mitre interested in this
- -     May also have a lot to do with riskiness of partners
- -   Terra/Luna
- -     Might have some similarities with DAI. This one is honestly quite tricky because it depends a lot on predicting how people will "feel" about future prices. It seems to be built a lot on expectation of success
- -     Simplest thing to do might just be take past prices ( of seigniorage + stablecoin ) and output new stablecoin predictions
- -   Fei
- -     This is a model that may also be covered by our speculator model, but we will add to it the existence of liquidty pools
- -   Rai 
+ #### DAI:
+ - Steal DAI model from paper you guys found -- we vary those parameters (stability fee and collateralization ratio)
+ - Closest to achievable
+#### USDC:
+ - Need to work more with MITRE on this. Model may be completely different ( Sanith hinted size of cash flows)
+ - Mitre interested in this
+ - May also have a lot to do with riskiness of partners
+ #### Terra/Luna
+ - Might have some similarities with DAI. This one is honestly quite tricky because it depends a lot on predicting how people will "feel" about future prices. It seems to be built a lot on expectation of success
+ - Simplest thing to do might just be take past prices ( of seigniorage + stablecoin ) and output new stablecoin predictions
+#### Fei
+ - This is a model that may also be covered by our speculator model, but we will add to it the existence of liquidty pools
+#### Rai 
