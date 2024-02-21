@@ -19,7 +19,6 @@
   - Good material to write about
 - Input: This should accept a price (demand) forecast and current state data : total supply, current price, collateralization level
 - Output: Time series of actions taken by our protocol which is also propagated out by speculator responses
-- ( DAI-"ish" model)
 - We'd probably target a comparison analysis to RAI , DAI , FEI or some combination of these
 
 #### TestBed: Monte Carlo Simulations
