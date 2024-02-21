@@ -5,7 +5,7 @@
 - A USDC model ( need to develop , collaborate with MITRE -- brainstorm next Tuesday ?)
 - A RAI model  ( this is doable because they use a PID controller, so we can copy this)
 - An ETH/BTC Forecast ( or at least a random generator with )
-- Terra/Luna Model ( I'm currently a bit stuck how we would do this in a "realistic" way -- simple agent based model is probably good route , cVAR model)
+- Terra/Luna Model ( I'm currently a bit stuck how we would do this in a "realistic" way -- simple agent based model is probably good route , cVAR model, or just blind time series forecasting based on 2 tokens)
 - Test Bed  -- MC simulations that can propagate out predictions from either application (UT Coin or Market Analysis)
 - Demand Shock Model -- this would be cool/intersting as well
 
