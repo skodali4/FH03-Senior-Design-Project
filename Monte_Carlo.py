@@ -17,7 +17,8 @@ def get_data(stocks, start, end):
     covMatrix = returns.cov()
     return meanReturns, covMatrix
 
-stockList = ['BNS.TO', 'GOOGL', 'XOM', 'NIO', 'KO', 'PEP','ARCC','IBM','AGNC','LCID']
+# stockList = ['BNS.TO', 'GOOGL', 'XOM', 'NIO', 'KO', 'PEP','ARCC','IBM','AGNC','LCID']
+stockList = ['USDC-USD', 'ETH-USD', 'DAI-USD']
 stocks = [stock for stock in stockList]
 endDate = dt.datetime.now()
 startDate = endDate - dt.timedelta(days=300)
@@ -38,7 +39,7 @@ meanM = meanM.T
 
 portfolio_sims = np.full(shape=(T, mc_sims), fill_value=0.0)
 
-initialPortfolio = 47000
+initialPortfolio = 10000
 
 for m in range(0, mc_sims):
     Z = np.random.normal(size=(T, len(weights)))#uncorrelated RV's
