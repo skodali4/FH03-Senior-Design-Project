@@ -122,4 +122,4 @@ dependencies:
       - jaxlib==0.4.25
       - ml-dtypes==0.3.2
       - opt-einsum==3.3.0
-prefix: C:\Users\nicks\miniconda3\envs\myenv
+
