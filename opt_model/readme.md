@@ -11,8 +11,8 @@ I only tested this with windows so I'm actually not sure if it will work on mac,
 Update: might need to delete or change the "prefix" in .yml file
 
 Try the following
-`conda env create -f environment.yml`
-`conda activate testenv`
+`conda env create -f environment.yml` <br>
+`conda activate testenv` <br>
 `python run_sim.py`
 
 If these work for you it will build the conda environment and name it testenv. You can add to 
