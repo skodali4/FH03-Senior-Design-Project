@@ -1,9 +1,30 @@
 import React, { useState } from 'react';
+import './App.css'; // Import your CSS file
+import { Line } from 'react-chartjs-2';
+import Chart from 'chart.js/auto';
+import 'chartjs-adapter-date-fns';
+// Function to aggregate data into intervals and calculate aggregate values
 
-function CurrencyGUI() {
+// Function to downsample data to limit the number of data points
+const downsampleData = (data, maxDataPoints) => {
+  const downsampledData = [];
+  const interval = Math.ceil(data.length / maxDataPoints);
+  for (let i = 0; i < data.length; i += interval) {
+    downsampledData.push(data[i]);
+  }
+  return downsampledData;
+};
+
+const maxDataPoints = 5; // Adjust as needed
+function App() {
+  const [currency, setCurrency] = useState('');
   const [usdc, setUsdc] = useState(false);
   const [usdt, setUsdt] = useState(false);
   const [dai, setDai] = useState(false);
+  const [startDate, setStartDate] = useState('');
+  const [startTime, setStartTime] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [endTime, setEndTime] = useState('');
   const [output, setOutput] = useState([]);
 
   const fetchData = async () => {
@@ -15,9 +36,25 @@ function CurrencyGUI() {
           throw new Error(`Failed to fetch data for USDC: ${response.status} ${response.statusText}`);
         }
         const usdcData = await response.json();
-        data.push({ currency: 'USDC', prices: usdcData.prices.map(entry => entry[1]), timestamp:usdcData.prices.map(price => price[0]) });
-        console.log('USDC Prices:', usdcData.prices.map(entry => entry[1]));
-        console.log('Formatted Dates:', usdcData.prices.map(price => price[0]));
+        console.log('Fetched USDC data:', usdcData); // Log fetched data
+
+        if (usdcData && Array.isArray(usdcData.prices)) {
+          if (!usdcData || !Array.isArray(usdcData.prices)) {
+            throw new Error('Invalid data format for USDC');
+          }
+          const downsampledData = downsampleData(usdcData.prices, maxDataPoints);
+          console.log('new shorter data:', downsampledData);
+          data.push({
+            currency: 'USDC',
+            prices: downsampledData.map(entry => entry[1]),
+            timestamp: downsampledData.map(entry => entry[0] - downsampledData[0][0])
+          });
+          console.log('USDC Prices:', downsampledData.map(entry => entry[1]));
+          console.log('Formatted Dates:', downsampledData.map(price => price[0]));
+        }
+        else {
+          console.error('Invalid format for USDC data:', usdcData);
+        }
       }
       if (usdt) {
         const response = await fetch('usdt_prices.json');
@@ -36,50 +73,90 @@ function CurrencyGUI() {
         data.push({ currency: 'DAI', prices: daiData });
       }
       setOutput(data);
+      console.log('OUTPUT:',data); // Log currencyData.prices here
     } catch (error) {
       console.error('Error fetching data:', error);
     }
   };
 
-  console.log('OUTPUT:',output); // Log currencyData.prices here
+console.log('OUTPUT:', output); // Log output after setting state
+
+// Check the structure of output in the render method
+console.log('OUTPUT Length:', output.length);
+if (output.length > 0) {
+  console.log('First Output:', output[0].prices);
+}
+
+const exchartData = {
+  labels: [0, 1555221618, 3110389745, 4669278285, 6224402001],
+  datasets: [
+    {
+      label: 'My Dataset',
+      data: [1.0003, 1.0001, 0.9995, 1.001, 1.0004],
+      borderColor: 'rgb(75, 192, 192)',
+      tension: 0.1
+    }
+  ]
+};
+
+
+  const chartData = {
+    labels: output.length > 0 ? output[0].timestamps : [],
+    datasets: output.length > 0 ? [{
+      label: output[0].currency,
+      data: output[0].prices,
+      fill: false,
+      borderColor: 'rgb(75, 192, 192)'
+    }] : []
+  };
+  
+
+  const options = {
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Time',
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Value',
+        },
+      },
+    },
+  };
+
 
   return (
-    <div>
+    <div className="app-container">
       <h1>Currency GUI</h1>
-      <div>
+      <div className="input-container">
         <label>
-          <input type="checkbox" checked={usdc} onChange={() => setUsdc(!usdc)} /> USDC
+          <input type="radio" name="currency" value="USDC" onChange={(e) => setUsdc(!usdc)} /> USDC
         </label>
-      </div>
-      <div>
         <label>
-          <input type="checkbox" checked={usdt} onChange={() => setUsdt(!usdt)} /> USDT
+          <input type="radio" name="currency" value="USDT" onChange={(e) => setCurrency(e.target.value)} /> USDT
         </label>
-      </div>
-      <div>
         <label>
-          <input type="checkbox" checked={dai} onChange={() => setDai(!dai)} /> DAI
+          <input type="radio" name="currency" value="DAI" onChange={(e) => setCurrency(e.target.value)} /> DAI
         </label>
-      </div>
-      <div>
+        <h2>Start Time</h2>
+        <input type="date" onChange={(e) => setStartDate(e.target.value)} />
+        <input type="time" onChange={(e) => setStartTime(e.target.value)} />
+        <h2>End Time</h2>
+        <input type="date" onChange={(e) => setEndDate(e.target.value)} />
+        <input type="time" onChange={(e) => setEndTime(e.target.value)} />
         <button onClick={fetchData}>Update</button>
       </div>
       <div>
-        {output.map((currencyData, index) => (
-          <div key={index}>
-            <h3>{currencyData.currency}</h3>
-            <ul>
-              {currencyData.prices.map((price, idx) => (
-              <li key={idx}>
-                {currencyData.timestamp[idx]}: {price}
-              </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+      <h2>My Chart</h2>
+      <div className="chart-container" style={{ width: '1000px', height: '10000' }}></div>
+      <Line data={exchartData} options={options}/>
+    </div>
     </div>
   );
 }
 
-export default CurrencyGUI;
+export default App;
