@@ -15,7 +15,7 @@ const downsampleData = (data, maxDataPoints) => {
   return downsampledData;
 };
 
-const maxDataPoints = 5; // Adjust as needed
+const maxDataPoints = 300; // Adjust as needed
 function App() {
   const [currency, setCurrency] = useState('');
   const [usdc, setUsdc] = useState(false);
@@ -28,9 +28,7 @@ function App() {
   const [output, setOutput] = useState([]);
   const [showChart, setShowChart] = useState(false);
 
-  const handleButtonClick = () => {
-    setShowChart(true);
-  };
+
 
   const fetchData = async () => {
     let data = [];
@@ -52,7 +50,7 @@ function App() {
           data.push({
             currency: 'USDC',
             prices: downsampledData.map(entry => entry[1]),
-            timestamp: downsampledData.map(entry => entry[0] - downsampledData[0][0])
+            timestamp: downsampledData.map(entry => entry[0])
           });
           console.log('USDC Prices:', downsampledData.map(entry => entry[1]));
           console.log('Formatted Dates:', downsampledData.map(price => price[0]));
@@ -62,12 +60,21 @@ function App() {
         }
       }
       if (usdt) {
-        const response = await fetch('usdt_prices.json');
+        const response = await fetch('/ethereum90days.json');
         if (!response.ok) {
           throw new Error(`Failed to fetch data for USDT: ${response.status} ${response.statusText}`);
         }
         const usdtData = await response.json();
-        data.push({ currency: 'USDT', prices: usdtData });
+        const downsampledData = downsampleData(usdtData.prices, maxDataPoints);
+        console.log('new shorter data:', downsampledData);
+        data.push({
+          currency: 'USDT',
+          prices: downsampledData.map(entry => entry[1]),
+          timestamp: downsampledData.map(entry => entry[0])
+        });
+        console.log('USDT Prices:', downsampledData.map(entry => entry[1]));
+        console.log('Formatted Dates:', downsampledData.map(price => price[0]));
+  
       }
       if (dai) {
         const response = await fetch('dai_prices.json');
@@ -84,16 +91,22 @@ function App() {
     }
   };
 
+  const handleButtonClick = () => {
+    setShowChart(true);
+    fetchData();
+  };
+
 console.log('OUTPUT:', output); // Log output after setting state
 
 // Check the structure of output in the render method
 console.log('OUTPUT Length:', output.length);
 if (output.length > 0) {
   console.log('First Output:', output[0].prices);
+  console.log('First Output:', output[0].timestamp);
 }
 
 const exchartData = {
-  labels: [0, 1555221618, 3110389745, 4669278285, 6224402001],
+  labels: [1701295258512, 1702850480130, 1704405648257, 1705964536797, 1707519660513],
   datasets: [
     {
       label: 'My Dataset',
@@ -106,11 +119,11 @@ const exchartData = {
 
 
 const chartData = {
-  labels: output.length > 0 ? output[0].timestamps : [],
+  labels: output.length > 0 ? output[0].timestamp.map(value => parseFloat(value)) : [],
   datasets: output.length > 0 ? [
     {
       label: output[0].currency,
-      data: output[0].prices,
+      data: output[0].prices.map(value => parseFloat(value)),
       borderColor: 'rgb(75, 192, 192)',
       tension: 0.1
     }
@@ -144,7 +157,7 @@ const chartData = {
           <input type="radio" name="currency" value="USDC" onChange={(e) => setUsdc(!usdc)} /> USDC
         </label>
         <label>
-          <input type="radio" name="currency" value="USDT" onChange={(e) => setCurrency(e.target.value)} /> USDT
+          <input type="radio" name="currency" value="USDT" onChange={(e) => setUsdt(!usdt)} /> USDT
         </label>
         <label>
           <input type="radio" name="currency" value="DAI" onChange={(e) => setCurrency(e.target.value)} /> DAI
@@ -161,7 +174,7 @@ const chartData = {
       <div>
       <h2>My Chart</h2>
       <div className="chart-container" style={{ width: '1000px', height: '10000' }}></div>
-      <Line data={exchartData} options={options}/>
+      <Line data={chartData} options={options}/>
     </div>
     )}
     </div>
