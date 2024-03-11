@@ -60,7 +60,7 @@ def simulate():
     return solution_dist
 
 def another_simulate()
-    """ this is just another example of how we might construct the above ^"""
+    " This is just another example of how we might construct the above ^" 
 
     ## Some Dummy Inputs 
     T = 10  # Time steps in advance when the user 
