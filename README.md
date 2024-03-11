@@ -10,6 +10,7 @@
 
 ## Components
 - A DAI behavior model ( we should probably just use : https://github.com/aklamun/stablecoin_deleveraging)
+   -- corresponding paper : https://arxiv.org/pdf/1906.02152.pdf
 - A USDC model ( need to develop , collaborate with MITRE -- brainstorm next Tuesday ?)
 - A RAI model  ( this is doable because they use a PID controller, so we can copy this)
 - An ETH/BTC Forecast ( or at least a random generator with )
