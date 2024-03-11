@@ -53,8 +53,8 @@ def simulate():
     for n in range(data.num_simualtions):
         series = agent.solve()
         # simulate mixture of low-information with highly informed
-        uninformed = .2*(np.random.normal(series[i] , 1) for i in range(len(series))
-        informed = .8*(np.random.normal(series[i] , .1) for i in range(len(series))
+        uninformed = [.2*(np.random.normal(series[i] , 1) for i in range(len(series))]
+        informed = [.8*(np.random.normal(series[i] , .1) for i in range(len(series))]
         solution_dist.append(uninformed +informed)
         # or something like this, 20% and 80% are arbitrary ^^
     return solution_dist
