@@ -88,7 +88,7 @@ def another_simulate()
 
 
 class DaiSpeculator:
-    """{Description} This is a suggested structure to use for wrapping
+""" {Description}  This is a suggested structure to use for wrapping
     calls to the DAI lib (https://github.com/aklamun/stablecoin_deleveraging). TODO: 
     please write / fill in the required variables that are receieved from the user and then
     passed to aklamun code in the necessary places. It might be best to take just the essentials
@@ -99,7 +99,8 @@ class DaiSpeculator:
     the simulation in time, it should run in loop t = 0 : T and it should update the state at every step before solving 
     the problem again at the next step.
     
-    Also, I've labeled the variables below with what I believe they are referred to as in the (In)Stability paper""" 
+    Also, I've labeled the variables below with what I believe they are referred to as in the (In)Stability paper
+""" 
     
     def __init__(
             self,
