@@ -50,7 +50,7 @@ def simulate():
     )
     
     solution_dist = []
-    for n in range(data.num_simualtions):
+    for n in range(data.num_simulations):
         series = agent.solve()
         # simulate mixture of low-information with highly informed
         uninformed = [.2*(np.random.normal(series[i] , 1) for i in range(len(series))]
