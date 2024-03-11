@@ -6,13 +6,16 @@ use a variant of the UTCoin code. However leave that part for now.
 
 The main thing to work on would be setting up the PID controller.
 
-Specifically read the section of RAI's whitepaper on "control theory" --> (Link)
+Specifically read the section of RAI's whitepaper on "control theory" --> https://github.com/reflexer-labs/whitepapers/blob/master/English/rai-english.pdf
 
 Note how they are using the PID controller. We want to emulate that behavior with the same underlying
 basic dynamics model for DAI stability wiht this small addition on top. 
 
-Some python library options for this would be simple-pid (https://pypi.org/project/simple-pid/) or the control toolbox. This just saves
-use the time and effort of building one from scratch and we can instead focus on tuning for our simulations. I would say probably we should tune
+Some library options for this would be 
+- simple-pid (https://pypi.org/project/simple-pid/) or
+- this python control toolbox (https://pypi.org/project/control/)
+
+This just saves us the time and effort of building one from scratch and we can instead focus on tuning for our simulations. I would say probably we should tune
 the PID to try to match historical times series or maybe we should go from first principles and just try to do it the way it has been described in
 their whitepaper.
 
