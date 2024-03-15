@@ -14,7 +14,7 @@ hopefully give the idea of how it might work (note the functions wont run as is 
 """
 
 
-def get_input(self ):
+def get_user_input(self ):
     """ Some function which communicates/interface with UI team's code or 
     somehow takes direct input from user in meantime for example pygui for a simple test"""
 
@@ -90,7 +90,7 @@ def another_simulate()
 class DaiSpeculator:
 """ {Description}  This is a suggested structure to use for wrapping
     calls to the DAI lib (https://github.com/aklamun/stablecoin_deleveraging). TODO: 
-    please write / fill in the required variables that are receieved from the user and then
+    please write / fill in the required variables that are received from the user and then
     passed to aklamun code in the necessary places. It might be best to take just the essentials
     from aklamun and place them here at the bottom of the file, organized as modularly as possible. 
     Ideally, we can make simple i/o calls with this single interface
@@ -106,14 +106,16 @@ class DaiSpeculator:
             self,
             init_supply,    # "L"
             init_eth,       # "m"
-            init_eth_price, # pE --> in deleveraing library this is randomly drawn from distribution at each step
+            init_eth_price, # pE --> in deleveraging library this is randomly drawn from distribution at each step
             beta,           # Beta = 1.5
             var             # See "Value at Risk" section (let's use Normal or Heavy-Tailed -> formula is something like exp( alpha  ) etc.
     ):
          
         ## TODO
+        self.S = init_supply
+        self.eth = init_eth
+        self.eth_price = init_eth_price
         self.Beta = beta
-        self.S = supply
         self.Var = var
 
         return
@@ -121,7 +123,7 @@ class DaiSpeculator:
     def call_deleveraging_library(self):
         # TODO
         """ basically, connect the dots from our input variables
-        to functions in deleveraaging code. The output is the time series
+        to functions in deleveraging code. The output is the time series
         prediction"""
         deleveraging_prediction = None
         return deleveraging_prediction 
@@ -130,6 +132,46 @@ class DaiSpeculator:
         ## Just putting this wrapper "solve" here to make it clear
         # that in this context solving is equivalent to calling the delveraging lib
         return call_deleveraging_library(self)
+
+def call_deleveraging_library():
+    # can we call simulate from the aklamun code here?
+    # the following is simulation code from there, we will need to add in relevant functions
+    '''
+    #from daily ETH data 2017-2018, from log returns
+    ETH_drift = 0.00162
+    ETH_vol = 0.027925
+    max_time = 1000
+    #num_sims = 10000
+    num_sims = 1
+    eth_distr = 'tdistribution'
+    df = 3
+    
+    init_cov = np.array([[ETH_vol**2,0],[0,0.00001]])
+    
+    const_r = 0.00162
+    const_active = []
+    const_inactive = []
+    
+    for i in range(num_sims):
+        t_samples = get_ETHrets_array(eth_distr)
+        
+        speculator = Speculator(rets=np.array([ETH_drift,0]), cov=init_cov, n_eth=400., L=0., a=0.1, sigma0=0, b=0.5)
+        stblc_holder = StblcHolder(port_val=100., rets=np.array([ETH_drift,0]), cov=init_cov, gamma=0.1, decision_method='below_target_var', var_target=0.0001)
+        ETH = Cryptocurrency(p_1=1., df=df, stdv=ETH_vol, drift=ETH_drift)
+        stblc = DStablecoin(p_1=1., eta=0., beta=1.5)
+        return_dict = {'i':0,
+                       'rets_constraint_inactive':[],
+                       'rets_inactive_normal':[],
+                       'rets_constraint_active':[],
+                       'rets_active_not_recovery':[],
+                       'rets_active_normal':[],
+                       'rets_recovery_mode':[]
+                       }
+        simulate(speculator, stblc_holder, ETH, stblc, t_samples, return_dict, eth_distr=eth_distr)
+        const_active += return_dict['rets_constraint_active']
+        const_inactive += return_dict['rets_constraint_inactive']
+       '''
+
 
 
 """ NOTE : here are some functions to give us some ideas how to build "multi-agent" model
