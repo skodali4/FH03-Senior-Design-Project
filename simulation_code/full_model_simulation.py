@@ -86,6 +86,10 @@ def simulate(speculator, stblc_holder, ETH, stblc, t_samples, return_dict, const
         print('stblc wt', stblc_holder.wts[1])
         print('stblc p', stblc.p_1)
         print('')
+
+        # add in p_1 to the dataframe
+        return_dict['prices'] += [stblc.p_1]
+
         if speculator.constraint_active == 0:
             return_dict['rets_constraint_inactive'] += [ret]
             if np.abs(stblc.p_0-1) < 0.5:
@@ -101,6 +105,7 @@ def simulate(speculator, stblc_holder, ETH, stblc, t_samples, return_dict, const
         
         if stblc.p_1 < 0.5 and stblc.p_0 < 0.5: #suppose stopping time for global settlement
             break
+
     return_dict['i'] = i
     return
 

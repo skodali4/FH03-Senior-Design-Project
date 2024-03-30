@@ -1,4 +1,5 @@
 import numpy as np
+from statistics import mean
 import seaborn as sns
 import matplotlib.pyplot as plt
 import random
@@ -123,15 +124,6 @@ class DaiSpeculator:
         ## Just putting this wrapper "solve" here to make it clear
         # that in this context solving is equivalent to calling the delveraging lib
         return call_deleveraging_library(self)
-    
-# from aklamun code simulation_code.generate_figures - to help create visual plot
-def Freedman_Diaconis_h(data, n=None):
-    '''rule for histogram bin width'''
-    if n == None:
-        n = len(data)
-    #IQR = np.percentile(data, 75) - np.percentile(data,25)
-    IQR = np.percentile(data, 95) - np.percentile(data,5)
-    return 2.*IQR/n**(1/3.)
 
 def call_deleveraging_library(input_n_sims, input_alpha, input_beta, input_n_eth, input_n_stbl):
     # can we call simulate from the aklamun code here?
@@ -150,17 +142,21 @@ def call_deleveraging_library(input_n_sims, input_alpha, input_beta, input_n_eth
     const_r = 0.00162
     const_active = []
     const_inactive = []
+
+    all_prices = [0]*num_sims
+    all_alphas = [0]*num_sims
+    all_betas = [0]*num_sims
     
     for i in range(num_sims):
         if input_alpha == -1:
             # randomize alpha values for each simulation
-            alpha = random.uniform(0.0000000001, 0.9999999999)
+            alpha = random.uniform(0.1, 0.9999999999)
         else:
             alpha = input_alpha
 
         if input_beta == -1:
             # randomize beta values for each simulation
-            beta = random.uniform(0.0000000001, 0.9999999999)
+            beta = random.uniform(0.5, 4)
         else:
             beta = input_beta
 
@@ -176,12 +172,29 @@ def call_deleveraging_library(input_n_sims, input_alpha, input_beta, input_n_eth
                        'rets_constraint_active':[],
                        'rets_active_not_recovery':[],
                        'rets_active_normal':[],
-                       'rets_recovery_mode':[]
+                       'rets_recovery_mode':[],
+                       'prices':[]
                        }
         simulate(speculator, stblc_holder, ETH, stblc, t_samples, return_dict, eth_distr=eth_distr)
         const_active += return_dict['rets_constraint_active']
         const_inactive += return_dict['rets_constraint_inactive']
 
+        all_prices[i] = return_dict['prices']
+        all_alphas[i] = alpha
+        all_betas[i] = beta
+    
+    print(len(all_prices[0]))
+    print(len(all_prices[1]))
+    print(len(all_prices[2]))
+
+    return all_prices, all_alphas, all_betas
+
+def average_prices(prices):
+    #prices = np.concatenate(prices)
+    max_length = max(len(arr) for arr in prices)
+    stacked_arrays = np.vstack([np.append(arr, [np.nan] * (max_length - len(arr))) for arr in prices])
+    averaged_values = np.nanmean(stacked_arrays, axis=0)
+    return averaged_values
 
 """ NOTE : here are some functions to give us some ideas how to build "multi-agent" model
           -> it can be a distribution of agents with differing risk tolerances and which act on a scale
@@ -206,8 +219,10 @@ def normal_betas(N,B = 2):
     return np.random.normal(B, scale=.1,size = N)
 
 def main():
-    call_deleveraging_library(input_n_sims = 2, input_alpha = 0.1, input_beta = 0.5, input_n_eth = 400, input_n_stbl = 0)
-    #call_deleveraging_library(input_n_sims = 10, input_alpha = -1, input_beta = -1, input_n_eth = 400, input_n_stbl = 0)
+    prices, alphas, betas = call_deleveraging_library(input_n_sims = 3, input_alpha = 0.1, input_beta = 2, input_n_eth = 400, input_n_stbl = 0)
+    #call_deleveraging_library(input_n_sims = 3, input_alpha = -1, input_beta = -1, input_n_eth = 400, input_n_stbl = 0)
+    final_prices = average_prices(prices)
+    print(final_prices)
     print("done")
 
 if __name__ == "__main__":
