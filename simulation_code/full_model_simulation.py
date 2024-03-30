@@ -5,7 +5,7 @@ Created on Tue Feb 12 12:11:50 2019
 @author: aklamun
 """
 
-import simple_agent_model
+#import simple_agent_model
 import numpy as np
 import threading
 
@@ -106,9 +106,9 @@ def simulate(speculator, stblc_holder, ETH, stblc, t_samples, return_dict, const
 
 def get_ETHrets_array(eth_distr):
     if eth_distr == 'tdistribution':
-        t_samples = np.random.standard_t(df, max_time)
+        t_samples = np.random.standard_t(df=3, size=1000) # size = max_time
     elif eth_distr == 'normal':
-        t_samples = np.random.normal(size=max_time)
+        t_samples = np.random.normal(size=1000)
     return t_samples
     
 

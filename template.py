@@ -1,8 +1,12 @@
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import random
 from scipy.stats import norm
 #import remote DAI simulation
+from simulation_code.full_model_simulation import simulate, get_ETHrets_array
+from simulation_code.simple_agent_model import Speculator, StblcHolder, Cryptocurrency, DStablecoin
+#from simulation_code.generate_figures import Freedman_Diaconis_h
 sns.set_theme()
 
 """ {Template Description}
@@ -35,6 +39,7 @@ def get_user_input(self ):
 
     return data
 
+"""
 def simulate():
 
     data = get_user_input()
@@ -53,13 +58,13 @@ def simulate():
     for n in range(data.num_simulations):
         series = agent.solve()
         # simulate mixture of low-information with highly informed
-        uninformed = [.2*(np.random.normal(series[i] , 1) for i in range(len(series))]
-        informed = [.8*(np.random.normal(series[i] , .1) for i in range(len(series))]
+        uninformed = [.2*(np.random.normal(series[i] , 1) for i in range(len(series)))]
+        informed = [.8*(np.random.normal(series[i] , .1) for i in range(len(series)))]
         solution_dist.append(uninformed +informed)
         # or something like this, 20% and 80% are arbitrary ^^
     return solution_dist
 
-def another_simulate()
+def another_simulate():
     " This is just another example of how we might construct the above ^" 
 
     ## Some Dummy Inputs 
@@ -84,24 +89,10 @@ def another_simulate()
         print("Risk Tol: ", agent.Var)
 
     return
+"""
 
 
-
-class DaiSpeculator:
-""" {Description}  This is a suggested structure to use for wrapping
-    calls to the DAI lib (https://github.com/aklamun/stablecoin_deleveraging). TODO: 
-    please write / fill in the required variables that are received from the user and then
-    passed to aklamun code in the necessary places. It might be best to take just the essentials
-    from aklamun and place them here at the bottom of the file, organized as modularly as possible. 
-    Ideally, we can make simple i/o calls with this single interface
-
-    Note: one difference to be aware of is that the paper solves a single-step problem. So for us to propagate out
-    the simulation in time, it should run in loop t = 0 : T and it should update the state at every step before solving 
-    the problem again at the next step.
-    
-    Also, I've labeled the variables below with what I believe they are referred to as in the (In)Stability paper
-""" 
-    
+class DaiSpeculator:    
     def __init__(
             self,
             init_supply,    # "L"
@@ -132,17 +123,25 @@ class DaiSpeculator:
         ## Just putting this wrapper "solve" here to make it clear
         # that in this context solving is equivalent to calling the delveraging lib
         return call_deleveraging_library(self)
+    
+# from aklamun code simulation_code.generate_figures - to help create visual plot
+def Freedman_Diaconis_h(data, n=None):
+    '''rule for histogram bin width'''
+    if n == None:
+        n = len(data)
+    #IQR = np.percentile(data, 75) - np.percentile(data,25)
+    IQR = np.percentile(data, 95) - np.percentile(data,5)
+    return 2.*IQR/n**(1/3.)
 
-def call_deleveraging_library():
+def call_deleveraging_library(input_n_sims, input_alpha, input_beta, input_n_eth, input_n_stbl):
     # can we call simulate from the aklamun code here?
     # the following is simulation code from there, we will need to add in relevant functions
-    '''
+    
     #from daily ETH data 2017-2018, from log returns
     ETH_drift = 0.00162
     ETH_vol = 0.027925
     max_time = 1000
-    #num_sims = 10000
-    num_sims = 1
+    num_sims = input_n_sims
     eth_distr = 'tdistribution'
     df = 3
     
@@ -153,12 +152,24 @@ def call_deleveraging_library():
     const_inactive = []
     
     for i in range(num_sims):
+        if input_alpha == -1:
+            # randomize alpha values for each simulation
+            alpha = random.uniform(0.0000000001, 0.9999999999)
+        else:
+            alpha = input_alpha
+
+        if input_beta == -1:
+            # randomize beta values for each simulation
+            beta = random.uniform(0.0000000001, 0.9999999999)
+        else:
+            beta = input_beta
+
         t_samples = get_ETHrets_array(eth_distr)
         
-        speculator = Speculator(rets=np.array([ETH_drift,0]), cov=init_cov, n_eth=400., L=0., a=0.1, sigma0=0, b=0.5)
+        speculator = Speculator(rets=np.array([ETH_drift,0]), cov=init_cov, n_eth=input_n_eth, L=input_n_stbl, a=alpha, sigma0=0, b=beta)
         stblc_holder = StblcHolder(port_val=100., rets=np.array([ETH_drift,0]), cov=init_cov, gamma=0.1, decision_method='below_target_var', var_target=0.0001)
         ETH = Cryptocurrency(p_1=1., df=df, stdv=ETH_vol, drift=ETH_drift)
-        stblc = DStablecoin(p_1=1., eta=0., beta=1.5)
+        stblc = DStablecoin(p_1=1., eta=0., beta=1 + beta)
         return_dict = {'i':0,
                        'rets_constraint_inactive':[],
                        'rets_inactive_normal':[],
@@ -170,8 +181,6 @@ def call_deleveraging_library():
         simulate(speculator, stblc_holder, ETH, stblc, t_samples, return_dict, eth_distr=eth_distr)
         const_active += return_dict['rets_constraint_active']
         const_inactive += return_dict['rets_constraint_inactive']
-       '''
-
 
 
 """ NOTE : here are some functions to give us some ideas how to build "multi-agent" model
@@ -196,5 +205,12 @@ def normal_risk(N):
 def normal_betas(N,B = 2):
     return np.random.normal(B, scale=.1,size = N)
 
+def main():
+    call_deleveraging_library(input_n_sims = 2, input_alpha = 0.1, input_beta = 0.5, input_n_eth = 400, input_n_stbl = 0)
+    #call_deleveraging_library(input_n_sims = 10, input_alpha = -1, input_beta = -1, input_n_eth = 400, input_n_stbl = 0)
+    print("done")
+
+if __name__ == "__main__":
+    main()
 
 ### Suggestion --> Extend this file with the "Dai Library" code ? --> alternatively, this could be organized into a separate file or group of files

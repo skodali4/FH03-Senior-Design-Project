@@ -9,7 +9,8 @@ import numpy as np
 from cvxopt import matrix, solvers
 import pandas as pd
 solvers.options['show_progress'] = False
-import optimization_algos as opt
+#import optimization_algos as opt
+from simulation_code.optimization_algos import mean_var_sharpe_opt, mean_var_target_opt
 from scipy import special
 
 
@@ -175,10 +176,10 @@ class StblcHolder(Agent):
     def decide_portfolio(self, assets):
         if self.decision_method == 'sharpe_portfolio':
             rets = np.array([self.rets[0], self.discount_stblc_ret(assets[1])])
-            sol, x = opt.mean_var_sharpe_opt(rets, self.cov, rf=-0.5)
+            sol, x = mean_var_sharpe_opt(rets, self.cov, rf=-0.5)
         elif self.decision_method == 'below_target_var':
             rets = np.array([self.rets[0], self.discount_stblc_ret(assets[1])])
-            sol, x = opt.mean_var_target_opt(rets, self.cov, self.var_target)
+            sol, x = mean_var_target_opt(rets, self.cov, self.var_target)
         else:
             raise Exception('Invalid stablecoin holder decision method')
         
