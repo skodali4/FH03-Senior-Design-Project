@@ -10,6 +10,9 @@ from simulation_code.simple_agent_model import Speculator, StblcHolder, Cryptocu
 #from simulation_code.generate_figures import Freedman_Diaconis_h
 sns.set_theme()
 
+from flask import Flask
+import json
+
 """ {Template Description}
 This file is attempting to lay out a simple bare bones design of how we might interface with user input and then
 pass data into alkalum's deleveraging code in order to get back a DAI prediction for "T" time steps (requested by user)
@@ -18,6 +21,7 @@ USDC, RAI, and UT Coin with their own set of respective inptus. I've alos begun 
 hopefully give the idea of how it might work (note the functions wont run as is of course)
 """
 
+app = Flask(__name__)
 
 def get_user_input(self ):
     """ Some function which communicates/interface with UI team's code or 
@@ -218,14 +222,16 @@ def normal_risk(N):
 def normal_betas(N,B = 2):
     return np.random.normal(B, scale=.1,size = N)
 
-def main():
-    prices, alphas, betas = call_deleveraging_library(input_n_sims = 3, input_alpha = 0.1, input_beta = 2, input_n_eth = 400, input_n_stbl = 0)
-    #call_deleveraging_library(input_n_sims = 3, input_alpha = -1, input_beta = -1, input_n_eth = 400, input_n_stbl = 0)
+@app.route('/simulation')
+def sim_model(num_sims, a, b, num_eth, num_stbl):
+    prices, alphas, betas = call_deleveraging_library(input_n_sims = num_sims, input_alpha = a, input_beta = b, input_n_eth = num_eth, input_n_stbl = num_stbl)
+    #call_deleveraging_library(input_n_sims = 3, input_alpha = 0.1/-1, input_beta = 2/-1, input_n_eth = 400, input_n_stbl = 0)
     final_prices = average_prices(prices)
-    print(final_prices)
+    prices_json = json.dumps(final_prices)
     print("done")
 
-if __name__ == "__main__":
-    main()
+app.run(port=5000)
+#if __name__ == "__main__":
+#    main()
 
 ### Suggestion --> Extend this file with the "Dai Library" code ? --> alternatively, this could be organized into a separate file or group of files
