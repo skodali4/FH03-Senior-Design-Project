@@ -222,13 +222,18 @@ def normal_risk(N):
 def normal_betas(N,B = 2):
     return np.random.normal(B, scale=.1,size = N)
 
-@app.route('/simulation')
+@app.route('/', methods = ['GET', 'POST'])
 def sim_model(num_sims, a, b, num_eth, num_stbl):
-    prices, alphas, betas = call_deleveraging_library(input_n_sims = num_sims, input_alpha = a, input_beta = b, input_n_eth = num_eth, input_n_stbl = num_stbl)
+#def main():
+    prices, alphas, betas = call_deleveraging_library(input_n_sims = 3, input_alpha = 0.1, input_beta = 2, input_n_eth = 400, input_n_stbl = 0)
     #call_deleveraging_library(input_n_sims = 3, input_alpha = 0.1/-1, input_beta = 2/-1, input_n_eth = 400, input_n_stbl = 0)
     final_prices = average_prices(prices)
-    prices_json = json.dumps(final_prices)
+    #prices_json = json.dumps(final_prices)
     print("done")
+    out_file = open("sim_output.json", "w")
+    final_prices = final_prices.tolist()
+    json.dump(final_prices, out_file, indent = 6)
+    out_file.close()
 
 app.run(port=5000)
 #if __name__ == "__main__":
