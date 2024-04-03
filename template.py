@@ -10,7 +10,7 @@ from simulation_code.simple_agent_model import Speculator, StblcHolder, Cryptocu
 #from simulation_code.generate_figures import Freedman_Diaconis_h
 sns.set_theme()
 
-from flask import Flask
+from flask import Flask, request
 import json
 
 """ {Template Description}
@@ -225,6 +225,12 @@ def normal_betas(N,B = 2):
 @app.route('/', methods = ['GET', 'POST'])
 def sim_model(num_sims, a, b, num_eth, num_stbl):
 # def main():
+    if request.method == 'POST':
+        num_sims = request.args.get('num_sims')
+        a = request.args.get('alpha')
+        b = request.args.get('beta')
+        num_eth = request.args.get('num_ethereum')
+        num_stbl = request.args.get('num_stablecoin')
     prices, alphas, betas = call_deleveraging_library(input_n_sims = num_sims, input_alpha = a, input_beta = b, input_n_eth = num_eth, input_n_stbl = num_stbl)
     #call_deleveraging_library(input_n_sims = 3, input_alpha = 0.1/-1, input_beta = 2/-1, input_n_eth = 400, input_n_stbl = 0)
     final_prices = average_prices(prices)
