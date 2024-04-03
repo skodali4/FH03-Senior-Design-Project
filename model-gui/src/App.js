@@ -124,8 +124,8 @@ function App() {
     <div className="App">
       <Tabs>
         <TabList>
-          <Tab>Simulation</Tab>
           <Tab>Time Series Forecasting</Tab>
+          <Tab>Simulation</Tab>
         </TabList>
 
         <TabPanel>
