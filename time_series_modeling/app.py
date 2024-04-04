@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
-from multivariate_lstms_flask_test import dai_multivariate, print_test
-from univariate_lstms_flask_test import usdc_univariate, eth_univariate, dai_univariate, usdt_univariate
-from univariate_lstms_flask_test import eth_simple_2022_univariate, eth_simple_univariate, generalized_eth_model
+from run_model_predictions import dai_multivariate, dai_univariate, eth_univariate, usdc_univariate, usdt_univariate, print_test
+
+# TODO denormalize output
 
 app = Flask(__name__)
 
@@ -20,32 +20,17 @@ def dai_uni():
     result = dai_univariate()
     return jsonify(result)
 
-@app.route('/eth/uni')
+@app.route('/eth')
 def eth_uni():
     result = eth_univariate()
     return jsonify(result)
 
-@app.route('/eth/simple')
-def eth_simple():
-    result = eth_simple_univariate()
-    return jsonify(result)
-
-@app.route('/eth/simple/2022')
-def eth_simple22():
-    result = eth_simple_2022_univariate()
-    return jsonify(result)
-
-@app.route('/eth/generalized')
-def eth_gen():
-    result = generalized_eth_model()
-    return jsonify(result)
-
-@app.route('/usdc/uni')
+@app.route('/usdc')
 def usdc_uni():
     result = usdc_univariate()
     return jsonify(result)
 
-@app.route('/usdt/uni')
+@app.route('/usdt')
 def usdt_uni():
     result = usdt_univariate()
     return jsonify(result)
