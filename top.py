@@ -1,5 +1,5 @@
 from flask import Flask, request
-from template import call_deleveraging_library, average_prices
+from simulation_code.template import call_deleveraging_library, average_prices
 import json
 
 app = Flask(__name__)
