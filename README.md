@@ -1,7 +1,16 @@
 ### FH03 Senior Design Project
 
+## Current To Do's
+- Connect DAI code from deleveraging library to the user interface using template.py as a starting point
+   -- Once this is done, please try running some tests to see how it works and make distribution plots using monte carlo script (repeated sims)
+- Tune PID controller for RAI simualtor model (see rai_template.py and provided resources)
+- Research USDC/ USDT, how we might add this as an extension to current work
+- Build/Test UT Coin (blocked by Nick -- still developing)
+  
+
 ## Components
 - A DAI behavior model ( we should probably just use : https://github.com/aklamun/stablecoin_deleveraging)
+   -- corresponding paper : https://arxiv.org/pdf/1906.02152.pdf
 - A USDC model ( need to develop , collaborate with MITRE -- brainstorm next Tuesday ?)
 - A RAI model  ( this is doable because they use a PID controller, so we can copy this)
 - An ETH/BTC Forecast ( or at least a random generator with )
@@ -67,3 +76,8 @@
 #### Fei
  - This is a model that may also be covered by our speculator model, but we will add to it the existence of liquidty pools
 #### Rai 
+It is likley we coudl use this as a baseline against the UT coin controller to run experiments and verify something "good" about our design
+Please see the links below
+- https://github.com/reflexer-labs/whitepapers/blob/master/English/rai-english.pdf
+- Pid control libraries like [this one](https://pypi.org/project/control/) or [this one](https://pypi.org/project/simple-pid/)
+
