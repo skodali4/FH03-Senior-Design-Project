@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 @app.route('/', methods = ['GET', 'POST'])
 def main():
-    if request.method == 'GET':
+    if request.method == 'POST':
         num_sims = request.args.get('num_sims')
         a = request.args.get('alpha')
         b = request.args.get('beta')
