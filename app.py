@@ -1,9 +1,12 @@
 from flask import Flask, jsonify, request, json
 from time_series_modeling.run_model_predictions import dai_multivariate, dai_univariate, eth_univariate, usdc_univariate, usdt_univariate, print_test
 from simulation_code.template import call_deleveraging_library, average_prices
+from flask_cors import CORS
 
 
 app = Flask(__name__)
+
+CORS(app)
 
 @app.route('/')
 def basictest():
