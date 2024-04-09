@@ -21,6 +21,41 @@ function App() {
     const [dai, setDai] = useState(false);
     const [output, setOutput] = useState([]);
     const [showChart, setShowChart] = useState(false);
+    const [formData, setFormData] = useState({
+      num_sims: '',
+      alpha: '',
+      beta: '',
+      num_ethereum: '',
+      num_stablecoin: ''
+    });
+
+    const numSims = 10;
+    const alpha = 0.5;
+    const beta = 0.7;
+    const numEthereum = 100;
+    const numStablecoin = 50;
+
+    const handleSubmit = () => {
+      // Submit form data to backend Flask application
+    console.log('hello before')
+    fetch(`http://localhost:5000/?num_sims=${numSims}&alpha=${alpha}&beta=${beta}&num_ethereum=${numEthereum}&num_stablecoin=${numStablecoin}`, {
+        method: 'GET'
+    })
+    .then(response => {
+      // Log the response for inspection
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }      return response.json();
+    })
+    .then(data => console.log(data))
+    .catch(error => console.error('Error:', error));
+    };
+
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setFormData({ ...formData, [name]: value });
+    };
+
     const fetchData = async () => {
       let data = [];
       try {
@@ -101,6 +136,19 @@ function App() {
       }
     ] : []
   };
+
+  const chartData2 = {
+    labels: output.length > 0 ? output[0].timestamp.map(value => parseFloat(value)) : [],
+    datasets: output.length > 0 ? [
+      {
+        label: output[0].currency,
+        data: output[0].prices.map(value => parseFloat(value)),
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.1
+      }
+    ] : []
+  };
+
     const options = {
       scales: {
         x: {
@@ -145,7 +193,7 @@ function App() {
               <button onClick={handleButtonClick}>Update</button>
             <div>
             </div>
-            {showChart && (
+            {(
             <div>
             <h2>My Chart</h2>
             <div className="chart-container" style={{ width: '1000px', height: '10000' }}></div>
@@ -155,7 +203,34 @@ function App() {
           </div>
         </TabPanel>
         <TabPanel>
-          <h2>Any content 2</h2>
+        <div>
+        <label>Number of Simulations:</label>
+        <input type="text" name="num_sims" value={formData.num_sims} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Field 2:</label>
+        <input type="text" name="alpha" value={formData.alpha} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Field 3:</label>
+        <input type="text" name="beta" value={formData.beta} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Field 4:</label>
+        <input type="text" name="num_ethereum" value={formData.num_ethereum} onChange={handleChange} />
+      </div>
+      <div>
+        <label>Field 5:</label>
+        <input type="text" name="num_stablecoin" value={formData.num_stablecoin} onChange={handleChange} />
+      </div>
+      <button onClick={handleSubmit}>Submit</button>
+            {(
+            <div>
+            <h2>My Chart</h2>
+            <div className="chart-container" style={{ width: '1000px', height: '10000' }}></div>
+            <Line data={chartData2} options={options}/>
+          </div>
+          )}
         </TabPanel>
       </Tabs>
     </div>
