@@ -38,7 +38,7 @@ function App() {
     const handleSubmit = () => {
       // Submit form data to backend Flask application
     console.log('hello before')
-    fetch(`http://localhost:5000/?num_sims=${numSims}&alpha=${alpha}&beta=${beta}&num_ethereum=${numEthereum}&num_stablecoin=${numStablecoin}`, {
+    fetch(`http://localhost:5000/simulation/?num_sims=${formData.num_sims}&alpha=${formData.alpha}&beta=${formData.beta}&num_ethereum=${formData.num_ethereum}&num_stablecoin=${formData.num_stablecoin}`, {
         method: 'GET'
     })
     .then(response => {
@@ -60,29 +60,26 @@ function App() {
       let data = [];
       try {
         if (usdc) {
-          const response = await fetch('/usdc90days.json');
+          const response = await fetch('http://localhost:5000/usdc');
           if (!response.ok) {
             throw new Error(`Failed to fetch data for USDC: ${response.status} ${response.statusText}`);
           }
           const usdcData = await response.json();
           console.log('Fetched USDC data:', usdcData); // Log fetched data
-          if (usdcData && Array.isArray(usdcData.prices)) {
-            if (!usdcData || !Array.isArray(usdcData.prices)) {
-              throw new Error('Invalid data format for USDC');
-            }
-            const downsampledData = downsampleData(usdcData.prices, maxDataPoints);
-            console.log('new shorter data:', downsampledData);
+          //if (usdcData && Array.isArray(usdcData.predicted_price)) {
+            //if (!usdcData || !Array.isArray(usdcData.predicted_price)) {
+            //  throw new Error('Invalid data format for USDC');
+            //}
+            //const downsampledData = downsampleData(usdcData.predicted_price, maxDataPoints);
+            //console.log('new shorter data:', downsampledData);
             data.push({
               currency: 'USDC',
-              prices: downsampledData.map(entry => entry[1]),
-              timestamp: downsampledData.map(entry => entry[0])
+              prices: usdcData.map(entry => entry['predicted price'][0]),
+              timestamp: usdcData.map(price => price['timestamp'])
             });
-            console.log('USDC Prices:', downsampledData.map(entry => entry[1]));
-            console.log('Formatted Dates:', downsampledData.map(price => price[0]));
-          }
-          else {
-            console.error('Invalid format for USDC data:', usdcData);
-          }
+            console.log('USDC Prices:', usdcData.map(entry => entry['predicted price'][0]));
+            console.log('Formatted Dates:', usdcData.map(price => price['timestamp']));
+          //}
         }
         if (usdt) {
           const response = await fetch('/ethereum90days.json');
@@ -90,7 +87,7 @@ function App() {
             throw new Error(`Failed to fetch data for USDT: ${response.status} ${response.statusText}`);
           }
           const usdtData = await response.json();
-          const downsampledData = downsampleData(usdtData.prices, maxDataPoints);
+          const downsampledData = downsampleData(usdtData.predicted_price, maxDataPoints);
           console.log('new shorter data:', downsampledData);
           data.push({
             currency: 'USDT',
