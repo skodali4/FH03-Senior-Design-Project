@@ -18,8 +18,11 @@ function App() {
     const [currency, setCurrency] = useState('');
     const [usdc, setUsdc] = useState(false);
     const [usdt, setUsdt] = useState(false);
-    const [dai, setDai] = useState(false);
+    const [eth, setEth] = useState(false);
+    const [daimult, setDaiM] = useState(false);
+    const [daiuni, setDaiU] = useState(false);
     const [output, setOutput] = useState([]);
+    const [simOutput, setsimOutput] = useState([]);
     const [showChart, setShowChart] = useState(false);
     const [formData, setFormData] = useState({
       num_sims: '',
@@ -29,26 +32,29 @@ function App() {
       num_stablecoin: ''
     });
 
-    const numSims = 10;
-    const alpha = 0.5;
-    const beta = 0.7;
-    const numEthereum = 100;
-    const numStablecoin = 50;
+    const numSims = parseInt(formData.num_sims);
+    const alpha = parseFloat(formData.alpha);
+    const beta = parseFloat(formData.beta);
+    const numEthereum = parseInt(formData.num_ethereum);
+    const numStablecoin = parseInt(formData.num_stablecoin);    
 
-    const handleSubmit = () => {
+    const handleSubmit = async() => {
       // Submit form data to backend Flask application
-    console.log('hello before')
-    fetch(`http://localhost:5000/simulation/?num_sims=${formData.num_sims}&alpha=${formData.alpha}&beta=${formData.beta}&num_ethereum=${formData.num_ethereum}&num_stablecoin=${formData.num_stablecoin}`, {
-        method: 'GET'
-    })
-    .then(response => {
-      // Log the response for inspection
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-    }      return response.json();
-    })
-    .then(data => console.log(data))
-    .catch(error => console.error('Error:', error));
+      try {
+        const response = await fetch(`http://localhost:5000/simulation?num_sims=${numSims}&alpha=${alpha}&beta=${beta}&num_ethereum=${numEthereum}&num_stablecoin=${numStablecoin}`, {
+            method: 'GET'
+        });
+
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setsimOutput(data);
+        console.log('Response:', data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
+  
     };
 
     const handleChange = (e) => {
@@ -66,12 +72,6 @@ function App() {
           }
           const usdcData = await response.json();
           console.log('Fetched USDC data:', usdcData); // Log fetched data
-          //if (usdcData && Array.isArray(usdcData.predicted_price)) {
-            //if (!usdcData || !Array.isArray(usdcData.predicted_price)) {
-            //  throw new Error('Invalid data format for USDC');
-            //}
-            //const downsampledData = downsampleData(usdcData.predicted_price, maxDataPoints);
-            //console.log('new shorter data:', downsampledData);
             data.push({
               currency: 'USDC',
               prices: usdcData.map(entry => entry['predicted price'][0]),
@@ -79,31 +79,66 @@ function App() {
             });
             console.log('USDC Prices:', usdcData.map(entry => entry['predicted price'][0]));
             console.log('Formatted Dates:', usdcData.map(price => price['timestamp']));
-          //}
         }
         if (usdt) {
-          const response = await fetch('/ethereum90days.json');
+          const response = await fetch('http://localhost:5000/usdt');
           if (!response.ok) {
             throw new Error(`Failed to fetch data for USDT: ${response.status} ${response.statusText}`);
           }
           const usdtData = await response.json();
-          const downsampledData = downsampleData(usdtData.predicted_price, maxDataPoints);
-          console.log('new shorter data:', downsampledData);
-          data.push({
-            currency: 'USDT',
-            prices: downsampledData.map(entry => entry[1]),
-            timestamp: downsampledData.map(entry => entry[0])
-          });
-          console.log('USDT Prices:', downsampledData.map(entry => entry[1]));
-          console.log('Formatted Dates:', downsampledData.map(price => price[0]));
+          console.log('Fetched USDC data:', usdtData); // Log fetched data
+            data.push({
+              currency: 'USDT',
+              prices: usdtData.map(entry => entry['predicted price'][0]),
+              timestamp: usdtData.map(price => price['timestamp'])
+            });
+            console.log('USDC Prices:', usdtData.map(entry => entry['predicted price'][0]));
+            console.log('Formatted Dates:', usdtData.map(price => price['timestamp']));
         }
-        if (dai) {
-          const response = await fetch('dai_prices.json');
+        if (eth) {
+          const response = await fetch('http://localhost:5000/eth');
           if (!response.ok) {
-            throw new Error(`Failed to fetch data for DAI: ${response.status} ${response.statusText}`);
+            throw new Error(`Failed to fetch data for USDC: ${response.status} ${response.statusText}`);
           }
-          const daiData = await response.json();
-          data.push({ currency: 'DAI', prices: daiData });
+          const ethData = await response.json();
+          console.log('Fetched ETH data:', ethData); // Log fetched data
+            data.push({
+              currency: 'ETH',
+              prices: ethData.map(entry => entry['predicted price'][0]),
+              timestamp: ethData.map(price => price['timestamp'])
+            });
+            console.log('USDC Prices:', ethData.map(entry => entry['predicted price'][0]));
+            console.log('Formatted Dates:', ethData.map(price => price['timestamp']));
+        }
+        if (daimult) {
+          const response = await fetch('http://localhost:5000/dai/multi');
+          if (!response.ok) {
+            throw new Error(`Failed to fetch data for DAI Multi: ${response.status} ${response.statusText}`);
+          }
+          const daiMData = await response.json();
+          console.log('Fetched DAI Multi data:', daiMData); // Log fetched data
+            data.push({
+              currency: 'DAI Multi Input',
+              prices: daiMData.map(entry => entry['predicted price'][0]),
+              timestamp: daiMData.map(price => price['timestamp'])
+            });
+            console.log('DAI Multi Input Prices:', daiMData.map(entry => entry['predicted price'][0]));
+            console.log('Formatted Dates:', daiMData.map(price => price['timestamp']));
+        }
+        if (daiuni) {
+          const response = await fetch('http://localhost:5000/dai/uni');
+          if (!response.ok) {
+            throw new Error(`Failed to fetch data for DAI uni: ${response.status} ${response.statusText}`);
+          }
+          const daiUData = await response.json();
+          console.log('Fetched DAI uni data:', daiUData); // Log fetched data
+            data.push({
+              currency: 'DAI Uni Input',
+              prices: daiUData.map(entry => entry['predicted price'][0]),
+              timestamp: daiUData.map(price => price['timestamp'])
+            });
+            console.log('DAI Multi Input Prices:', daiUData.map(entry => entry['predicted price'][0]));
+            console.log('Formatted Dates:', daiUData.map(price => price['timestamp']));
         }
         setOutput(data);
         console.log('OUTPUT:',data); // Log currencyData.prices here
@@ -135,11 +170,11 @@ function App() {
   };
 
   const chartData2 = {
-    labels: output.length > 0 ? output[0].timestamp.map(value => parseFloat(value)) : [],
-    datasets: output.length > 0 ? [
+    labels: simOutput.length > 0 ? Array.from({ length: simOutput.length }, (_, i) => i + 1) : [],
+    datasets: simOutput.length > 0 ? [
       {
-        label: output[0].currency,
-        data: output[0].prices.map(value => parseFloat(value)),
+        label: 'Price',
+        data: simOutput,
         borderColor: 'rgb(75, 192, 192)',
         tension: 0.1
       }
@@ -178,13 +213,19 @@ function App() {
             <h1>Currency GUI</h1>
             <div className="input-container">
             <label>
-              <input type="radio" name="currency" value="USDC" onChange={(e) => { setUsdc(true); setUsdt(false); setDai(false); }} /> USDC
+              <input type="radio" name="currency" value="USDC" onChange={(e) => { setUsdc(true); setUsdt(false); setEth(false); setDaiM(false); setDaiU(false);}} /> USDC
             </label>
             <label>
-              <input type="radio" name="currency" value="USDT" onChange={(e) => { setUsdc(false); setUsdt(true); setDai(false); }} /> USDT
+              <input type="radio" name="currency" value="USDT" onChange={(e) => { setUsdc(false); setUsdt(true); setEth(false); setDaiM(false); setDaiU(false)}} /> USDT
             </label>
             <label>
-              <input type="radio" name="currency" value="DAI" onChange={(e) => { setUsdc(false); setUsdt(false); setDai(true); }} /> DAI
+              <input type="radio" name="currency" value="ETH" onChange={(e) => { setUsdc(false); setUsdt(false); setEth(true); setDaiM(false); setDaiU(false)}} /> ETH
+            </label>
+            <label>
+              <input type="radio" name="currency" value="DAI MULTI" onChange={(e) => { setUsdc(false); setUsdt(false); setEth(false); setDaiM(true); setDaiU(false)}} /> DAI(multi)
+            </label>
+            <label>
+              <input type="radio" name="currency" value="DAI UNI" onChange={(e) => { setUsdc(false); setUsdt(false); setEth(false); setDaiM(false); setDaiU(true)}} /> DAI(uni)
             </label>
             </div>
               <button onClick={handleButtonClick}>Update</button>
